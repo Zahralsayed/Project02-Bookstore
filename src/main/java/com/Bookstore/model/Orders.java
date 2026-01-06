@@ -6,17 +6,17 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Getter
 @Setter
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Orders {
 
     @Id
@@ -41,7 +41,7 @@ public class Orders {
     private LocalDateTime orderDate;
 
     @Column
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
