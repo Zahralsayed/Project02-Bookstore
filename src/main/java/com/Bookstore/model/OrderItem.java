@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -24,7 +25,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
-    private Orders orders;
+    private Orders order;
 
 //    @ManyToOne
 //    @JoinColumn(name = "book_id", nullable = false)
@@ -34,10 +35,10 @@ public class OrderItem {
     private Integer quantity;
 
     @Column
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     @Column
-    private double subtotal;
+    private BigDecimal subtotal;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
