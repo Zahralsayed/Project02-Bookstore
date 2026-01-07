@@ -8,7 +8,9 @@ import com.Bookstore.model.OrderItem;
 import com.Bookstore.model.Orders;
 import com.Bookstore.model.User;
 import com.Bookstore.repository.OrdersRepository;
+import com.Bookstore.security.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -86,6 +88,11 @@ public class OrdersService {
         order.setStatus(OrderStatus.CANCELED);
 
         return ordersRepository.save(order);
+    }
+
+    public static User getCurrentLoggedInUser(){
+        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userDetails.getUser();
     }
 
 }
