@@ -71,4 +71,21 @@ public class OrdersService {
         return ordersRepository.save(order);
     }
 
+    public Orders cancelOrder(long id) {
+        Orders order = getOrderById(id);
+
+        if (order.getStatus()!= OrderStatus.CREATED){
+            throw new IllegalStateException("Sorry! Too Late TO delete this order");
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            Book book = item.getBook();
+            book.setQuantity(book.getQuantity() + item.getQuantity());
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+
+        return ordersRepository.save(order);
+    }
+
 }
