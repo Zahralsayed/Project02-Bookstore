@@ -1,5 +1,6 @@
 package com.Bookstore.model;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,9 +24,6 @@ public class Category {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
