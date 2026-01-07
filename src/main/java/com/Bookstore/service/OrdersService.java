@@ -57,4 +57,18 @@ public class OrdersService {
                 .orElseThrow(()-> new InformationNotFoundException("Order with id "+ id + " not found"));
     }
 
+    public Orders updateOrderStatus(long id, OrderStatus status) {
+        Orders order = getOrderById(id);
+        if (order.getStatus() == OrderStatus.CANCELED){
+            throw new IllegalStateException("This order was canceled, Canceled orders cannot be modified");
+        }
+
+        if (order.getStatus() == status) {
+            throw new IllegalArgumentException("Order already has status " + status);
+        }
+
+        order.setStatus(status);
+        return ordersRepository.save(order);
+    }
+
 }
