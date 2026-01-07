@@ -48,6 +48,13 @@ public class OrdersService {
         return ordersRepository.save(order);
     }
 
+    public List<Orders> findUserOrders(User user) {
+        return ordersRepository.findByUserId(user.getId());
+    }
 
+    public Orders getOrderById(long id) {
+        return ordersRepository.findById(id)
+                .orElseThrow(()-> new InformationNotFoundException("Order with id "+ id + " not found"));
+    }
 
 }
