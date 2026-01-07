@@ -6,7 +6,6 @@ import com.Bookstore.exception.InformationExistException;
 import com.Bookstore.model.User;
 import com.Bookstore.model.UserProfile;
 import com.Bookstore.model.request.LoginRequest;
-import com.Bookstore.model.response.UserResponse;
 import com.Bookstore.repository.UserRepository;
 import com.Bookstore.security.JWTUtils;
 import com.Bookstore.security.MyUserDetails;
@@ -23,9 +22,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Service
 public class UserService {
+    private static final Logger logger = Logger.getLogger(UserService.class.getName());
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -66,19 +67,15 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        UserResponse response = new UserResponse(
-                savedUser.getId(),
-                savedUser.getUsername(),
-                savedUser.getEmail(),
-                savedUser.getRole(),
-                savedUser.getStatus(),
-                savedUser.getProfile()
-        );
+        String token = jwtUtils.createVerificationToken(savedUser.getEmail());
+
+        // print in the console for debugging
+        sendVerificationEmail(savedUser, token);
 
         return ResponseEntity.ok(Map.of(
                 "status", savedUser.getStatus(),
                 "message", "User registered successfully. Please verify your email before logging in.",
-                "user", response
+                "verificationUrl", "http://localhost:8080/auth/users/verify?token=" + token
         ));
 
     }
@@ -102,8 +99,14 @@ public class UserService {
 
             // Check if account is active
             if (myUser.getUser().getStatus() != UserStatus.ACTIVE) {
+                String token = jwtUtils.createVerificationToken(myUser.getUser().getEmail());
+                sendVerificationEmail(myUser.getUser(), token);
+
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Your account is inactive. Please verify your email."));
+                        .body(Map.of(
+                                "error", "Your account is inactive. Please verify your email.",
+                                "verificationUrl", "http://localhost:8080/auth/users/verify?token=" + token
+                        ));
             }
 
             // Generate JWT
@@ -124,5 +127,37 @@ public class UserService {
                     .body(Map.of("error", "Invalid email or password"));
         }
     }
+
+    public ResponseEntity<?> verifyEmail(String token) {
+        try {
+            String email = jwtUtils.extractUsername(token);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            if (user.getStatus() == UserStatus.ACTIVE) {
+                return ResponseEntity.ok(Map.of("message", "User already verified."));
+            }
+
+            user.setStatus(UserStatus.ACTIVE);
+            userRepository.save(user);
+            return ResponseEntity.ok(Map.of("message", "Email verified successfully. You can now log in."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Invalid or expired verification token."));
+        }
+    }
+    private void sendVerificationEmail(User user, String token) {
+        String verifyUrl = "http://localhost:8080/auth/users/verify?token=" + token;
+        String subject = "Verify your account";
+        String body = "Hi " + user.getUsername() + ",\n\n" +
+                "Please verify your account by clicking the link below:\n" +
+                verifyUrl + "\n\n" +
+                "This link will expire in 15 minutes.\n\nThank you!";
+
+        logger.info("Sending email to: " + user.getEmail());
+        logger.info("Subject: " + subject);
+        logger.info("Body:\n" + body);
+    }
+
 
 }

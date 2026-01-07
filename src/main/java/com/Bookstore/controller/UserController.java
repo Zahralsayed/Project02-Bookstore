@@ -28,4 +28,9 @@ public class UserController {
         System.out.println("Calling loginUser ==> ");
         return userService.loginUser(loginRequest);
     }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        return userService.verifyEmail(token);
+    }
 }
