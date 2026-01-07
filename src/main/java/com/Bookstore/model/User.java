@@ -2,9 +2,9 @@ package com.Bookstore.model;
 
 import com.Bookstore.enums.Role;
 import com.Bookstore.enums.UserStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Setter(AccessLevel.NONE)
+@Setter
 @Table(name = "users")
 public class User {
     @Id
@@ -22,23 +22,19 @@ public class User {
     private Long id;
     private String username;
     private String email;
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
     @Enumerated(EnumType.STRING)
     private UserStatus status;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private UserProfile profile;
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDate createdAt;
     @UpdateTimestamp
     private LocalDate updatedAt;
-
-    // Admin-only update
-    public void updateStatus(UserStatus status) {
-        this.status = status;
-    }
 
 }

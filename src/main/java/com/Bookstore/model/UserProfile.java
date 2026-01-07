@@ -1,7 +1,7 @@
 package com.Bookstore.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,6 +20,7 @@ public class UserProfile {
     private Long id;
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JsonBackReference
     private User user;
     private String profileImage;
     private String phone;
