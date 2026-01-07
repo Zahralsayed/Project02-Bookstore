@@ -24,5 +24,30 @@ public class OrdersService {
         this.ordersRepository = ordersRepository;
     }
 
+    public Orders createOrder(Orders order, User user) {
+
+        if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
+            throw new InformationExistException("Order must contain at least one item");
+        }
+
+        order.setUser(user);
+        order.setStatus(OrderStatus.CREATED);
+
+        BigDecimal total =BigDecimal.ZERO;
+
+        for(OrderItem item : order.getOrderItems()) {
+            item.setOrder(order);
+            BigDecimal subtotal = item.getUnitPrice()
+                    .multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setSubtotal(subtotal);
+            total = total.add(subtotal);
+        }
+
+        order.setTotalPrice(total);
+
+        return ordersRepository.save(order);
+    }
+
+
 
 }
