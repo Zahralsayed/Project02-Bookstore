@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -63,4 +65,14 @@ public class JWTUtils {
                 .getExpiration()
                 .before(new Date());
     }
+    public String createVerificationToken(String email) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+                .setSubject(email)
+                .setExpiration(Date.from(now.plus(Duration.ofMinutes(15)))) // 15 minutes
+                .claim("purpose", "email_verification")
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 }
