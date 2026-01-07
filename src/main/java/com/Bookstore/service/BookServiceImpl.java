@@ -2,7 +2,6 @@ package com.Bookstore.service;
 
 import com.Bookstore.dto.CreateBookDTO;
 import com.Bookstore.dto.UpdateBookDTO;
-import com.Bookstore.exception.ResourceNotFoundException;
 import com.Bookstore.model.Book;
 import com.Bookstore.model.Category;
 import com.Bookstore.repository.BookRepository;
@@ -23,7 +22,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book create(CreateBookDTO dto) {
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + dto.getCategoryId()));
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
 
         Book b = new Book();
         b.setName(dto.getName());
