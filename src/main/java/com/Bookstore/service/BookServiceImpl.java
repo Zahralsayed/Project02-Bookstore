@@ -3,9 +3,7 @@ package com.Bookstore.service;
 import com.Bookstore.dto.CreateBookDTO;
 import com.Bookstore.dto.UpdateBookDTO;
 import com.Bookstore.model.Book;
-import com.Bookstore.model.Category;
 import com.Bookstore.repository.BookRepository;
-import com.Bookstore.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
