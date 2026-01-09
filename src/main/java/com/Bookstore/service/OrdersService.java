@@ -7,7 +7,9 @@ import com.Bookstore.model.Book;
 import com.Bookstore.model.OrderItem;
 import com.Bookstore.model.Orders;
 import com.Bookstore.model.User;
+import com.Bookstore.repository.BookRepository;
 import com.Bookstore.repository.OrdersRepository;
+import com.Bookstore.repository.UserRepository;
 import com.Bookstore.security.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,10 @@ import java.util.List;
 public class OrdersService {
 
     private OrdersRepository ordersRepository;
+    private BookRepository bookRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     public void setOrdersRepository(OrdersRepository ordersRepository) {
@@ -35,12 +41,18 @@ public class OrdersService {
         order.setUser(user);
         order.setStatus(OrderStatus.CREATED);
 
-        BigDecimal total =BigDecimal.ZERO;
+        BigDecimal total = BigDecimal.ZERO;
 
-        for(OrderItem item : order.getOrderItems()) {
+        for (OrderItem item : order.getOrderItems()) {
+            Long bookId = item.getBook().getBookId();
+            Book book = bookRepository.findById(bookId)
+                    .orElseThrow(() -> new InformationExistException("Book not found with id: " + bookId));
+            item.setBook(book);
+
             item.setOrder(order);
             BigDecimal subtotal = item.getUnitPrice()
                     .multiply(BigDecimal.valueOf(item.getQuantity()));
+            item.setUnitPrice(BigDecimal.valueOf(book.getPrice()));
             item.setSubtotal(subtotal);
             total = total.add(subtotal);
         }
@@ -90,9 +102,29 @@ public class OrdersService {
         return ordersRepository.save(order);
     }
 
-    public static User getCurrentLoggedInUser(){
-        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userDetails.getUser();
-    }
+//    public static User getCurrentLoggedInUser(){
+//        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        return userDetails.getUser();
+//    }
 
+    public User getCurrentLoggedInUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new RuntimeException("No user is currently logged in");
+        }
+
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof MyUserDetails myUserDetails) {
+            return myUserDetails.getUser();
+        } else if (principal instanceof String username) {
+            return userRepository.findByEmail(username)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        } else {
+            throw new RuntimeException("Unexpected principal type: " + principal.getClass().getName());
+
+        }
+
+    }
 }
