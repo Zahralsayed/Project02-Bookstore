@@ -29,6 +29,9 @@ public class User {
     private LocalDateTime verificationTokenDate;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    private String token;
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime tokenCreationDate;
     @Enumerated(EnumType.STRING)
     private Role role;
     @Enumerated(EnumType.STRING)
