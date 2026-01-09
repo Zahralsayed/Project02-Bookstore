@@ -1,6 +1,7 @@
 package com.Bookstore.model;
 
 import com.Bookstore.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,8 +39,10 @@ public class Orders {
 
     @Column
     @CreationTimestamp
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime orderDate;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column
     private BigDecimal totalPrice;
 
