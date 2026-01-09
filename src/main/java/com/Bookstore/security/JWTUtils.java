@@ -65,14 +65,4 @@ public class JWTUtils {
                 .getExpiration()
                 .before(new Date());
     }
-    public String createVerificationToken(String email) {
-        Instant now = Instant.now();
-        return Jwts.builder()
-                .setSubject(email)
-                .setExpiration(Date.from(now.plus(Duration.ofMinutes(15)))) // 15 minutes
-                .claim("purpose", "email_verification")
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
 }

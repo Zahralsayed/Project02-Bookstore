@@ -3,8 +3,10 @@ package com.Bookstore.service;
 import com.Bookstore.enums.Role;
 import com.Bookstore.enums.UserStatus;
 import com.Bookstore.exception.InformationExistException;
+import com.Bookstore.exception.InformationNotExistException;
 import com.Bookstore.model.User;
 import com.Bookstore.model.UserProfile;
+import com.Bookstore.model.request.ChangePasswordRequest;
 import com.Bookstore.model.request.LoginRequest;
 import com.Bookstore.repository.UserRepository;
 import com.Bookstore.security.JWTUtils;
@@ -21,30 +23,34 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class UserService {
-    private static final Logger logger = Logger.getLogger(UserService.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final MyUserDetailsService userDetailsService;
+    private final TokenService tokenService;
 
     @Autowired
     public UserService(UserRepository userRepository,
                        @Lazy PasswordEncoder passwordEncoder,
                        JWTUtils jwtUtils,
                        @Lazy AuthenticationManager authenticationManager,
-                       @Lazy MyUserDetailsService myUserDetailsService) {
+                       @Lazy MyUserDetailsService myUserDetailsService, TokenService tokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = myUserDetailsService;
+        this.tokenService = tokenService;
     }
 
     // Registration
@@ -65,15 +71,15 @@ public class UserService {
         profile.setUser(user); // link profile to user
         user.setProfile(profile);
 
-        User savedUser = userRepository.save(user);
+        String token = tokenService.generateToken();
+        user.setVerificationToken(token);
+        user.setVerificationTokenDate(LocalDateTime.now());
+        userRepository.save(user);
 
-        String token = jwtUtils.createVerificationToken(savedUser.getEmail());
-
-        // print in the console for debugging
-        sendVerificationEmail(savedUser, token);
+        sendVerificationEmail(user, token);
 
         return ResponseEntity.ok(Map.of(
-                "status", savedUser.getStatus(),
+                "status", user.getStatus(),
                 "message", "User registered successfully. Please verify your email before logging in.",
                 "verificationUrl", "http://localhost:8080/auth/users/verify?token=" + token
         ));
@@ -99,7 +105,13 @@ public class UserService {
 
             // Check if account is active
             if (myUser.getUser().getStatus() != UserStatus.ACTIVE) {
-                String token = jwtUtils.createVerificationToken(myUser.getUser().getEmail());
+                User user = myUser.getUser();
+                String token = tokenService.generateToken();
+
+                user.setVerificationToken(token);
+                user.setVerificationTokenDate(LocalDateTime.now());
+                userRepository.save(user);
+
                 sendVerificationEmail(myUser.getUser(), token);
 
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -129,16 +141,24 @@ public class UserService {
     }
 
     public ResponseEntity<?> verifyEmail(String token) {
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Token is missing."));
+        }
         try {
-            String email = jwtUtils.extractUsername(token);
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userRepository.findByVerificationToken(token)
+                    .orElseThrow(() -> new RuntimeException("This link is invalid or has already been used."));
 
+            if (tokenService.isTokenExpired(user.getVerificationTokenDate())){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Link expired. Please login to receive a new one."));
+            }
             if (user.getStatus() == UserStatus.ACTIVE) {
                 return ResponseEntity.ok(Map.of("message", "User already verified."));
             }
 
             user.setStatus(UserStatus.ACTIVE);
+            user.setVerificationToken(null);
+            user.setVerificationTokenDate(null);
             userRepository.save(user);
             return ResponseEntity.ok(Map.of("message", "Email verified successfully. You can now log in."));
         } catch (Exception e) {
@@ -148,16 +168,69 @@ public class UserService {
     }
     private void sendVerificationEmail(User user, String token) {
         String verifyUrl = "http://localhost:8080/auth/users/verify?token=" + token;
-        String subject = "Verify your account";
-        String body = "Hi " + user.getUsername() + ",\n\n" +
-                "Please verify your account by clicking the link below:\n" +
-                verifyUrl + "\n\n" +
-                "This link will expire in 15 minutes.\n\nThank you!";
 
-        logger.info("Sending email to: " + user.getEmail());
-        logger.info("Subject: " + subject);
-        logger.info("Body:\n" + body);
+        String body = String.format(
+                "Hello %s,\n\n" +
+                        "Thank you for registering! To complete your sign-up, please click the link below to verify your email address:\n\n" +
+                        "%s\n\n" +
+                        "Note: This link is valid for 15 minutes.\n\n" +
+                        "If you did not create an account, please ignore this email.",
+                user.getUsername(), verifyUrl
+        );
+
+        logger.info("Email sent to {}: \n{}", user.getEmail(), body);
     }
 
+    public String forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InformationNotExistException("User with this email not found!"));
 
+
+        String token = tokenService.generateToken();
+        user.setToken(token);
+        user.setTokenCreationDate(LocalDateTime.now());
+        userRepository.save(user);
+
+        return user.getToken();
+    }
+
+    public String resetPassword(String token, String newPassword) {
+        try {
+            User user = userRepository.findByToken(token)
+                    .orElseThrow(() -> new RuntimeException("Invalid token!"));
+
+            LocalDateTime tokenCreationTime = user.getTokenCreationDate();
+            if (tokenService.isTokenExpired(tokenCreationTime)) {
+                return "Token expired.";
+            }
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setToken(null);
+            user.setTokenCreationDate(null);
+            userRepository.save(user);
+
+            return "Your Password reset successfully. You can now log in.";
+
+        } catch (RuntimeException e) {
+            return e.getMessage(); // Returns "Invalid token!"
+        } catch (Exception e) {
+            return "An unexpected error occurred. Please try again.";
+        }
+    }
+
+    public ResponseEntity<?> changePassword(String email, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InformationNotExistException("User with this email not found!"));
+        if(!passwordEncoder.matches(request.oldPassword(), user.getPassword())){
+            return ResponseEntity.badRequest().body(Map.of("error", "Current password does not match."));
+        }
+        if(!request.newPassword().equals(request.confirmNewPassword())){
+            return ResponseEntity.badRequest().body(Map.of("error", "Password mismatch. Please ensure both fields are identical."));
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Password updated successfully."));
+    }
 }
