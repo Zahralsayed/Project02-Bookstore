@@ -22,13 +22,13 @@ public class OrdersController {
 
     @PostMapping("/new")
     public Orders createOrder(@RequestBody Orders order) {
-        User currentUser = OrdersService.getCurrentLoggedInUser();
+        User currentUser = ordersService.getCurrentLoggedInUser();
         return ordersService.createOrder(order, currentUser);
     }
 
     @GetMapping
     public List<Orders> getMyOrders() {
-        User currentUser = OrdersService.getCurrentLoggedInUser();
+        User currentUser = ordersService.getCurrentLoggedInUser();
         return ordersService.findUserOrders(currentUser);
     }
 
