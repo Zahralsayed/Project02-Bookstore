@@ -11,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,9 @@ public class User {
     private Long id;
     private String username;
     private String email;
+    private String verificationToken;
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime verificationTokenDate;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Enumerated(EnumType.STRING)
