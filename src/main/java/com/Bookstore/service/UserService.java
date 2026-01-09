@@ -6,6 +6,7 @@ import com.Bookstore.exception.InformationExistException;
 import com.Bookstore.exception.InformationNotExistException;
 import com.Bookstore.model.User;
 import com.Bookstore.model.UserProfile;
+import com.Bookstore.model.request.ChangePasswordRequest;
 import com.Bookstore.model.request.LoginRequest;
 import com.Bookstore.repository.UserRepository;
 import com.Bookstore.security.JWTUtils;
@@ -217,4 +218,19 @@ public class UserService {
         }
     }
 
+    public ResponseEntity<?> changePassword(String email, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InformationNotExistException("User with this email not found!"));
+        if(!passwordEncoder.matches(request.oldPassword(), user.getPassword())){
+            return ResponseEntity.badRequest().body(Map.of("error", "Current password does not match."));
+        }
+        if(!request.newPassword().equals(request.confirmNewPassword())){
+            return ResponseEntity.badRequest().body(Map.of("error", "Password mismatch. Please ensure both fields are identical."));
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Password updated successfully."));
+    }
 }
