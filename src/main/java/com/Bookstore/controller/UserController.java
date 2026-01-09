@@ -1,13 +1,16 @@
 package com.Bookstore.controller;
 
 import com.Bookstore.model.User;
+import com.Bookstore.model.request.ChangePasswordRequest;
 import com.Bookstore.model.request.ForgetPasswordRequest;
 import com.Bookstore.model.request.LoginRequest;
 import com.Bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -63,6 +66,15 @@ public class UserController {
         } else {
             return ResponseEntity.badRequest().body(Map.of("error", result));
         }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Principal principal){
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "You must be logged in to change your password."));
+        }
+        return userService.changePassword(principal.getName(), request);
     }
 
 }
