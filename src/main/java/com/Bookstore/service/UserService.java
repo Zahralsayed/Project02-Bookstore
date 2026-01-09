@@ -3,6 +3,7 @@ package com.Bookstore.service;
 import com.Bookstore.enums.Role;
 import com.Bookstore.enums.UserStatus;
 import com.Bookstore.exception.InformationExistException;
+import com.Bookstore.exception.InformationNotExistException;
 import com.Bookstore.model.User;
 import com.Bookstore.model.UserProfile;
 import com.Bookstore.model.request.LoginRequest;
@@ -83,6 +84,7 @@ public class UserService {
         ));
 
     }
+
 
     // Login
     public ResponseEntity<?> loginUser(LoginRequest loginRequest) {
@@ -176,6 +178,43 @@ public class UserService {
         );
 
         logger.info("Email sent to {}: \n{}", user.getEmail(), body);
+    }
+
+    public String forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InformationNotExistException("User with this email not found!"));
+
+
+        String token = tokenService.generateToken();
+        user.setToken(token);
+        user.setTokenCreationDate(LocalDateTime.now());
+        userRepository.save(user);
+
+        return user.getToken();
+    }
+
+    public String resetPassword(String token, String newPassword) {
+        try {
+            User user = userRepository.findByToken(token)
+                    .orElseThrow(() -> new RuntimeException("Invalid token!"));
+
+            LocalDateTime tokenCreationTime = user.getTokenCreationDate();
+            if (tokenService.isTokenExpired(tokenCreationTime)) {
+                return "Token expired.";
+            }
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setToken(null);
+            user.setTokenCreationDate(null);
+            userRepository.save(user);
+
+            return "Your Password reset successfully. You can now log in.";
+
+        } catch (RuntimeException e) {
+            return e.getMessage(); // Returns "Invalid token!"
+        } catch (Exception e) {
+            return "An unexpected error occurred. Please try again.";
+        }
     }
 
 }

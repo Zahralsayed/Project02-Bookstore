@@ -1,11 +1,14 @@
 package com.Bookstore.controller;
 
 import com.Bookstore.model.User;
+import com.Bookstore.model.request.ForgetPasswordRequest;
 import com.Bookstore.model.request.LoginRequest;
 import com.Bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/users")
@@ -33,4 +36,33 @@ public class UserController {
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         return userService.verifyEmail(token);
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgetPasswordRequest request) {
+        String email = request.getEmail();
+        String response = userService.forgotPassword(email);
+
+        if (response.startsWith("Invalid")) {
+            return ResponseEntity.badRequest().body(Map.of("message", response));
+        }
+
+        String resetUrl = "http://localhost:8080/auth/users/reset-password?token=" + response;
+
+        return ResponseEntity.ok(Map.of(
+                "message", "A reset link has been generated successfully.",
+                "resetLink", resetUrl
+        ));
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestParam String token,
+                                                             @RequestParam String newPassword) {
+        String result = userService.resetPassword(token, newPassword);
+
+        if (result.contains("successfully")) {
+            return ResponseEntity.ok(Map.of("message", result));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", result));
+        }
+    }
+
 }
