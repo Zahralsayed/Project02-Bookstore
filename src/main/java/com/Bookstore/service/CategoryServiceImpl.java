@@ -14,8 +14,6 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-
-    // ✅ CREATE
     public Category create(CreateCategoryDTO dto) {
         Category c = new Category();
         c.setName(dto.getName());
@@ -24,12 +22,11 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.save(c);
     }
 
-    // ✅ GET ALL (ACTIVE ONLY)
     public List<Category> getAll() {
         return categoryRepository.findByStatus("ACTIVE");
     }
 
-    // ✅ GET BY ID (BLOCK INACTIVE)
+    //  GET BY ID (BLOCK INACTIVE)
     public Category getById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -40,7 +37,6 @@ public class CategoryServiceImpl implements CategoryService {
         return category;
     }
 
-    // ✅ UPDATE
     public Category update(Long id, UpdateCategoryDTO dto) {
         Category c = getById(id);
 
@@ -50,7 +46,6 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.save(c);
     }
 
-    // ✅ SOFT DELETE
     public void delete(Long id) {
         Category c = getById(id);
         c.setStatus("INACTIVE");

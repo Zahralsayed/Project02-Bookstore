@@ -18,26 +18,22 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    // ✅ ADMIN ONLY
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public Category create(@Valid @RequestBody CreateCategoryDTO dto) {
         return categoryService.create(dto);
     }
 
-    // ✅ GET ALL (ACTIVE ONLY)
     @GetMapping
     public List<Category> getAll() {
         return categoryService.getAll();
     }
 
-    // ✅ GET BY ID
     @GetMapping("/{id}")
     public Category getById(@PathVariable Long id) {
         return categoryService.getById(id);
     }
 
-    // ✅ ADMIN ONLY
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public Category update(@PathVariable Long id,
@@ -45,7 +41,7 @@ public class CategoryController {
         return categoryService.update(id, dto);
     }
 
-    // ✅ ADMIN ONLY (SOFT DELETE)
+    // ADMIN ONLY (SOFT DELETE)
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {

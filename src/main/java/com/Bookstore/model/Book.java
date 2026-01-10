@@ -42,7 +42,7 @@ public class Book {
     private String coverImage;
 
     @Column(nullable = false)
-    private String status = "ACTIVE";   // ✅ for soft delete
+    private String status = "ACTIVE";   //  for soft delete
 
 
     @Column(name = "created_at", updatable = false)
@@ -56,7 +56,7 @@ public class Book {
     @NotNull(message = "Category is required")
     private Category category;
 
-    // ✅ Auto timestamps
+    // Auto timestamps
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

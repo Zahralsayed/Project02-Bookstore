@@ -26,7 +26,7 @@ public class Category {
     private String description;
 
     @Column(nullable = false)
-    private String status = "ACTIVE";   // ✅ soft delete support
+    private String status = "ACTIVE";   // soft delete support
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -34,7 +34,7 @@ public class Category {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ✅ Auto timestamps
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

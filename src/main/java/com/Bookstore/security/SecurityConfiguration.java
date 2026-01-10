@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // ✅ THIS IS THE MISSING LINE
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
 
     private final JwtAuthFilter jwtAuthFilter;
