@@ -1,5 +1,6 @@
 package com.Bookstore.service;
 
+import com.Bookstore.enums.OrderStatus;
 import com.Bookstore.model.Book;
 import com.Bookstore.model.OrderItem;
 import com.Bookstore.model.Orders;
@@ -49,13 +50,22 @@ public class OrderItemService {
 
     public OrderItem updateItem(Long itemId,int quantity, User user) {
         System.out.println("Calling Service updateItem ==>");
-
         OrderItem item = orderItemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("OrderItem Not Found"));
 
-    if (!item.getOrder().getId().equals(user.getId())) {
+
+        Orders order = item.getOrder();
+        if (!order.getId().equals(user.getId())) {
         throw new RuntimeException("Unauthorized order access");
-    }
+        }
+
+        if (order.getStatus()!= OrderStatus.CREATED){
+            throw new IllegalStateException("Too Late! Order is not editable in status: " + order.getStatus());
+        }
+
+        if(quantity<1){
+            throw new RuntimeException("Quantity must be at least 1");
+        }
 
     item.setQuantity(quantity);
     item.setSubtotal(
@@ -65,7 +75,23 @@ public class OrderItemService {
     return orderItemRepository.save(item);
     }
 
+    public void deleteItem(Long itemId, User user) {
+        System.out.println("Calling Service deleteItem ==>");
 
+        OrderItem item = orderItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("OrderItem Not Found"));
 
+        Orders order = item.getOrder();
+
+        if (!order.getId().equals(user.getId())) {
+        throw new RuntimeException("Unauthorized order access");
+        }
+
+        if (order.getStatus()!= OrderStatus.CREATED){
+            throw new IllegalStateException("Too Late! Order is not deleted in status: " + order.getStatus());
+        }
+
+        orderItemRepository.delete(item);
+    }
 
 }
