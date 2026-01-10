@@ -18,7 +18,6 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final CategoryRepository categoryRepository;
 
-    // ✅ CREATE
     @Override
     public Book create(CreateBookDTO dto) {
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -32,19 +31,17 @@ public class BookServiceImpl implements BookService {
         b.setQuantity(dto.getQuantity());
         b.setIsbn(dto.getIsbn());
         b.setCoverImage(dto.getCoverImage());
-        b.setStatus("ACTIVE"); // ✅ default for soft delete
+        b.setStatus("ACTIVE"); //
         b.setCategory(category);
 
         return bookRepository.save(b);
     }
 
-    // ✅ GET ALL (ACTIVE ONLY)
     @Override
     public List<Book> getAll() {
         return bookRepository.findByStatus("ACTIVE");
     }
 
-    // ✅ GET BY ID (BLOCK INACTIVE)
     @Override
     public Book getById(Long id) {
         Book book = bookRepository.findById(id)
@@ -57,7 +54,6 @@ public class BookServiceImpl implements BookService {
         return book;
     }
 
-    // ✅ UPDATE
     @Override
     public Book update(Long id, UpdateBookDTO dto) {
         Book b = getById(id);
@@ -79,11 +75,24 @@ public class BookServiceImpl implements BookService {
         return bookRepository.save(b);
     }
 
-    // ✅ SOFT DELETE
     @Override
     public void delete(Long id) {
         Book b = getById(id);
         b.setStatus("INACTIVE");
         bookRepository.save(b);
+    }
+
+    @Override
+    public List<Book> getBooksByCategory(Long categoryId) {
+
+        // validate category exists
+        categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException(
+                        "Category not found with id: " + categoryId));
+
+        return bookRepository.findByCategoryCategoryIdAndStatus(
+                categoryId,
+                "ACTIVE"
+        );
     }
 }

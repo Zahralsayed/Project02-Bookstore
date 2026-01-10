@@ -46,4 +46,10 @@ public class BookController {
     public void delete(@PathVariable Long id) {
         bookService.delete(id);
     }
+
+    @GetMapping("/category/{categoryId}")
+    public List<Book> getBooksByCategory(@PathVariable Long categoryId) {
+        return bookService.getBooksByCategory(categoryId);
+    }
+
 }
