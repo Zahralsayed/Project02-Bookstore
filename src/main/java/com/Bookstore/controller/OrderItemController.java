@@ -29,5 +29,14 @@ public class OrderItemController {
         return orderItemService.addItem(orderId, bookId, quantity, user);
     }
 
+    @PutMapping("/{id}")
+    public OrderItem updateItem(
+            @PathVariable Long id,
+            @RequestParam int quantity
+    ) {
+        System.out.println("Calling updateItem ==>");
+        User user = ordersService.getCurrentLoggedInUser();
+        return orderItemService.updateQuantity(id, quantity, user);
+    }
 
 }
