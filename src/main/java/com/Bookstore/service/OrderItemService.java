@@ -48,7 +48,7 @@ public class OrderItemService {
     }
 
 
-    public OrderItem updateItem(Long itemId,int quantity, User user) {
+    public OrderItem updateQuantity(Long itemId,int quantity, User user) {
         System.out.println("Calling Service updateItem ==>");
         OrderItem item = orderItemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("OrderItem Not Found"));
