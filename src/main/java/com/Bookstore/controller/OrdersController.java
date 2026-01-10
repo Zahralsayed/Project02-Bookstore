@@ -1,5 +1,6 @@
 package com.Bookstore.controller;
 
+import com.Bookstore.dto.OrderRequestDTO;
 import com.Bookstore.enums.OrderStatus;
 import com.Bookstore.model.Orders;
 import com.Bookstore.model.User;
@@ -16,15 +17,15 @@ public class OrdersController {
     private OrdersService ordersService;
 
     @Autowired
-    public void setOrdersService(OrdersService ordersService) {
+    public OrdersController(OrdersService ordersService) {
         this.ordersService = ordersService;
     }
 
     @PostMapping("/new")
-    public Orders createOrder(@RequestBody Orders order) {
+    public Orders createOrder(@RequestBody OrderRequestDTO orderRequest) {
         System.out.println("Calling createOrder ==>");
         User currentUser = ordersService.getCurrentLoggedInUser();
-        return ordersService.createOrder(order, currentUser);
+        return ordersService.createOrder(orderRequest, currentUser);
     }
 
     @GetMapping
