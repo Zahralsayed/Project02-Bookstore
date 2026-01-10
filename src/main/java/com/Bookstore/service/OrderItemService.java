@@ -25,7 +25,7 @@ public class OrderItemService {
     }
 
     public OrderItem addItem(Long orderId, Long bookId, int quantity, User user) {
-        System.out.println("Calling Service addItem");
+        System.out.println("Calling Service addItem ==>");
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order Not Found"));
 
@@ -45,4 +45,27 @@ public class OrderItemService {
 
     return orderItemRepository.save(item);
     }
+
+
+    public OrderItem updateItem(Long itemId,int quantity, User user) {
+        System.out.println("Calling Service updateItem ==>");
+
+        OrderItem item = orderItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("OrderItem Not Found"));
+
+    if (!item.getOrder().getId().equals(user.getId())) {
+        throw new RuntimeException("Unauthorized order access");
+    }
+
+    item.setQuantity(quantity);
+    item.setSubtotal(
+            item.getUnitPrice().multiply(BigDecimal.valueOf(quantity))
+    );
+
+    return orderItemRepository.save(item);
+    }
+
+
+
+
 }
