@@ -1,7 +1,7 @@
 package com.Bookstore.model;
 
 import com.Bookstore.enums.OrderStatus;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,6 +27,7 @@ public class Orders {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"orders", "profile"})
     private User user;
 
     @OneToMany(
@@ -34,6 +35,7 @@ public class Orders {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
 
 

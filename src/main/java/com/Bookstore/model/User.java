@@ -2,6 +2,7 @@ package com.Bookstore.model;
 
 import com.Bookstore.enums.Role;
 import com.Bookstore.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -40,6 +41,7 @@ public class User {
     @JsonManagedReference
     private UserProfile profile;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Orders> orders;
     @CreationTimestamp
     @Column(updatable = false)
