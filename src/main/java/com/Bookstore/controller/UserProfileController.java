@@ -42,21 +42,21 @@ public class UserProfileController {
         }
     }
 
-        @GetMapping("/images/{filename:.+}")
-        public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
-            Resource file = profileService.loadAsResource(filename);
+    @GetMapping("/images/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        Resource file = profileService.loadAsResource(filename);
 
-            String contentType = "image/jpeg/png"; // Default
-            try {
-                contentType = servletContext.getMimeType(file.getFile().getAbsolutePath());
-            } catch (IOException ex) {
-                System.out.println("Could not determine file type.");
-            }
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
-                    .body(file);
+        String contentType = "image/jpeg/png"; // Default
+        try {
+            contentType = servletContext.getMimeType(file.getFile().getAbsolutePath());
+        } catch (IOException ex) {
+            System.out.println("Could not determine file type.");
         }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+                .body(file);
+    }
 
 }
