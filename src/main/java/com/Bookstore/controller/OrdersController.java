@@ -22,23 +22,27 @@ public class OrdersController {
 
     @PostMapping("/new")
     public Orders createOrder(@RequestBody Orders order) {
+        System.out.println("Calling createOrder ==>");
         User currentUser = ordersService.getCurrentLoggedInUser();
         return ordersService.createOrder(order, currentUser);
     }
 
     @GetMapping
     public List<Orders> getMyOrders() {
+        System.out.println("Calling getMyOrders ==>");
         User currentUser = ordersService.getCurrentLoggedInUser();
         return ordersService.findUserOrders(currentUser);
     }
 
     @GetMapping("/{id}")
     public Orders getOrderById(@PathVariable long id) {
+        System.out.println("Calling getOrderById ==>");
         return ordersService.getOrderById(id);
     }
 
     @PutMapping("/{id}/cancel")
     public Orders cancelOrder(@PathVariable long id) {
+        System.out.println("Calling cancelOrder ==>");
         return ordersService.cancelOrder(id);
     }
 
@@ -47,6 +51,7 @@ public class OrdersController {
             @PathVariable long id,
             @RequestParam OrderStatus status
     ) {
+        System.out.println("Calling updateOrderStatus ==>");
         return ordersService.updateOrderStatus(id, status);
     }
 

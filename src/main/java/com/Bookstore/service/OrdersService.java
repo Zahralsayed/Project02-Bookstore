@@ -33,6 +33,7 @@ public class OrdersService {
     }
 
     public Orders createOrder(Orders order, User user) {
+        System.out.println("Service Calling createOrder ==>");
 
         if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
             throw new InformationExistException("Order must contain at least one item");
@@ -63,15 +64,18 @@ public class OrdersService {
     }
 
     public List<Orders> findUserOrders(User user) {
+        System.out.println("Service Calling findUserOrders ==>");
         return ordersRepository.findByUserId(user.getId());
     }
 
     public Orders getOrderById(long id) {
+        System.out.println("Service Calling getOrderById==>");
         return ordersRepository.findById(id)
                 .orElseThrow(()-> new InformationNotFoundException("Order with id "+ id + " not found"));
     }
 
     public Orders updateOrderStatus(long id, OrderStatus status) {
+        System.out.println("Service Calling updateOrderStatus ==>");
         Orders order = getOrderById(id);
         if (order.getStatus() == OrderStatus.CANCELED){
             throw new IllegalStateException("This order was canceled, Canceled orders cannot be modified");
@@ -86,6 +90,7 @@ public class OrdersService {
     }
 
     public Orders cancelOrder(long id) {
+        System.out.println("Service Calling cancelOrder ==>");
         Orders order = getOrderById(id);
 
         if (order.getStatus()!= OrderStatus.CREATED){
