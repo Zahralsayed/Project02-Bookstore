@@ -45,15 +45,19 @@ public class OrdersService {
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderItem item : order.getOrderItems()) {
+            if (item.getBook() == null || item.getBook().getBookId() == null) {
+                throw new InformationExistException("Book is required for each order item");
+            }
+
             Long bookId = item.getBook().getBookId();
             Book book = bookRepository.findById(bookId)
                     .orElseThrow(() -> new InformationExistException("Book not found with id: " + bookId));
             item.setBook(book);
 
             item.setOrder(order);
+            item.setUnitPrice(BigDecimal.valueOf(book.getPrice()));
             BigDecimal subtotal = item.getUnitPrice()
                     .multiply(BigDecimal.valueOf(item.getQuantity()));
-            item.setUnitPrice(BigDecimal.valueOf(book.getPrice()));
             item.setSubtotal(subtotal);
             total = total.add(subtotal);
         }
