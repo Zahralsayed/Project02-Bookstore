@@ -39,4 +39,11 @@ public class OrderItemController {
         return orderItemService.updateQuantity(id, quantity, user);
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteItem(@PathVariable Long id) {
+        System.out.println("Calling deleteItem ==>");
+        User user = ordersService.getCurrentLoggedInUser();
+        orderItemService.deleteItem(id, user);
+    }
+
 }
