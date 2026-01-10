@@ -18,5 +18,16 @@ public class OrderItemController {
         this.orderItemService = orderItemService;
     }
 
-    
+    @PostMapping
+    public OrderItem addItem(
+            @RequestParam Long orderId,
+            @RequestParam Long bookId,
+            @RequestParam int quantity
+    ) {
+        System.out.println("Calling addItem ==>");
+        User user = ordersService.getCurrentLoggedInUser();
+        return orderItemService.addItem(orderId, bookId, quantity, user);
+    }
+
+
 }
