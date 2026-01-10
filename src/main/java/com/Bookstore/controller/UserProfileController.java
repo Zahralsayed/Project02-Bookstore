@@ -1,5 +1,7 @@
 package com.Bookstore.controller;
 
+import com.Bookstore.model.UserProfile;
+import com.Bookstore.model.request.UserProfileUpdateRequest;
 import com.Bookstore.service.UserProfileService;
 import jakarta.servlet.ServletContext;
 import org.springframework.core.io.Resource;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -57,6 +60,13 @@ public class UserProfileController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
                 .body(file);
+    }
+
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(@ModelAttribute UserProfileUpdateRequest userProfileUpdateRequest,
+                                           Principal principal) throws IOException {
+        UserProfile updated = profileService.updateFullProfile(principal.getName(),userProfileUpdateRequest);
+        return ResponseEntity.ok(updated);
     }
 
 }
