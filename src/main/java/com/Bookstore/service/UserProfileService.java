@@ -1,5 +1,6 @@
 package com.Bookstore.service;
 
+import com.Bookstore.enums.Role;
 import com.Bookstore.model.User;
 import com.Bookstore.model.UserProfile;
 import com.Bookstore.model.request.UserProfileUpdateRequest;
@@ -99,5 +100,12 @@ public class UserProfileService {
 
         userRepository.save(user);
         return profile;
+    }
+
+    public List<UserProfile> getAllProfiles() {
+        return userProfileRepository.findAll()
+                .stream()
+                .filter(userProfile -> userProfile.getUser().getRole() == Role.CUSTOMER)
+                .toList();
     }
 }
