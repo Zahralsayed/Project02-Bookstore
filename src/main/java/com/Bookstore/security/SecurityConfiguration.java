@@ -40,6 +40,10 @@ public class SecurityConfiguration {
                                 "/auth/users/forgot-password",
                                 "/auth/users/reset-password"
                         ).permitAll()
+                        .requestMatchers("/api/user-profiles/all-profiles").hasRole("ADMIN")
+                        .requestMatchers("/auth/users/getAllUsers").hasRole("ADMIN")
+                        .requestMatchers("/auth/users/status/{userId}").hasRole("ADMIN")
+                        .requestMatchers("/auth/users/delete/{userId}").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

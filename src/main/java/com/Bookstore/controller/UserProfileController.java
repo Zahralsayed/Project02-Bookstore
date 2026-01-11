@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
@@ -67,6 +68,12 @@ public class UserProfileController {
                                            Principal principal) throws IOException {
         UserProfile updated = profileService.updateFullProfile(principal.getName(),userProfileUpdateRequest);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/all-profiles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserProfile>> getAllProfiles() {
+        return ResponseEntity.ok(profileService.getAllProfiles());
     }
 
 }

@@ -1,5 +1,6 @@
 package com.Bookstore.controller;
 
+import com.Bookstore.enums.UserStatus;
 import com.Bookstore.model.User;
 import com.Bookstore.model.request.ChangePasswordRequest;
 import com.Bookstore.model.request.ForgetPasswordRequest;
@@ -8,9 +9,11 @@ import com.Bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -75,6 +78,29 @@ public class UserController {
                     .body(Map.of("error", "You must be logged in to change your password."));
         }
         return userService.changePassword(principal.getName(), request);
+    }
+
+    @GetMapping("/getAllUsers")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<User> getAll(){
+        return userService.getAll();
+    }
+
+    @PatchMapping("/status/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> changeUserStatus(
+            @PathVariable Long userId,
+            @RequestParam UserStatus status) {
+
+        userService.updateUserStatus(userId, status);
+        return ResponseEntity.ok("User status successfully updated to: " + status.name());
+    }
+
+    @DeleteMapping("/delete/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> softDeleteUser(@PathVariable Long userId) {
+        userService.softDeleteUser(userId);
+        return ResponseEntity.ok("User has been soft-deleted (Status set to INACTIVE).");
     }
 
 }
