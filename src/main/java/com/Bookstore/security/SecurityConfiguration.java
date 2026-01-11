@@ -44,8 +44,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/auth/users/getAllUsers").hasRole("ADMIN")
                         .requestMatchers("/auth/users/status/{userId}").hasRole("ADMIN")
                         .requestMatchers("/auth/users/delete/{userId}").hasRole("ADMIN")
-                        .requestMatchers("/api/categories").hasRole("ADMIN")
+                        .requestMatchers("/api/categories", "/api/categories/*").authenticated()
                         .anyRequest().authenticated()
+
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

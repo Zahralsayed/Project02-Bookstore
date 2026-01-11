@@ -41,7 +41,6 @@ public class CategoryController {
         return categoryService.update(id, dto);
     }
 
-    // ADMIN ONLY (SOFT DELETE)
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
