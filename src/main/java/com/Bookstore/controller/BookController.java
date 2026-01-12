@@ -20,7 +20,6 @@ public class BookController {
 
     @PostMapping
     public Book create(@Valid @RequestBody CreateBookDTO dto) {
-        System.out.println(">>> HIT CREATE BOOK <<<");
         return bookService.create(dto);
     }
 
