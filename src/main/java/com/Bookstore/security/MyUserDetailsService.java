@@ -3,10 +3,13 @@ package com.Bookstore.security;
 import com.Bookstore.model.User;
 import com.Bookstore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
@@ -27,4 +30,6 @@ public class MyUserDetailsService implements UserDetailsService {
 
         return new MyUserDetails(user);
     }
+
+
 }

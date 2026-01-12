@@ -18,11 +18,12 @@ public class BookController {
 
     private final BookService bookService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public Book create(@Valid @RequestBody CreateBookDTO dto) {
+        System.out.println(">>> HIT CREATE BOOK <<<");
         return bookService.create(dto);
     }
+
     // active only
     @GetMapping
     public List<Book> getAll() {
@@ -34,14 +35,14 @@ public class BookController {
         return bookService.getById(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     public Book update(@PathVariable Long id,
                        @Valid @RequestBody UpdateBookDTO dto) {
         return bookService.update(id, dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         bookService.delete(id);
@@ -51,5 +52,4 @@ public class BookController {
     public List<Book> getBooksByCategory(@PathVariable Long categoryId) {
         return bookService.getBooksByCategory(categoryId);
     }
-
 }
