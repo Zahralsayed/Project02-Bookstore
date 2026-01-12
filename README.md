@@ -1,5 +1,6 @@
 # Bookstore App
-## A Java Spring Boot Bookstore application that allows users to browse books, place orders, and manage their profiles. The app includes JWT-based authentication for secure login and role-based access control, supporting both customers and admins. Admins can manage users, books, and orders, while customers can view and purchase books.
+
+A Java Spring Boot Bookstore application that allows users to browse books, place orders, and manage their profiles. The app includes **JWT-based authentication** for secure login and role-based access control, supporting both customers and admins. Admins can manage users, books, and orders, while customers can view and purchase books.
 
 ---
 
@@ -27,18 +28,35 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 ---
 
 ## User Stories
+
 [View User Stories](https://trello.com/invite/b/6952b94c349dcac14cf77eb7/ATTI476b3e5d4d51b4843a78e7f248466357441D3886/bookstore)
 
 ---
 
 ## ERD Diagram
 
-![ERD Diagram](<img width="1150" height="820" alt="Untitled (2)" src="https://github.com/user-attachments/assets/8c95a661-e90c-49b0-bac0-f6da4c0183d1" />)
-> ERD shows entities: Users, UserProfiles, Books, Categories, Orders, OrderItems  
+![ERD Diagram](https://github.com/user-attachments/assets/8c95a661-e90c-49b0-bac0-f6da4c0183d1)
+
+> ERD shows entities: Users, UserProfiles, Books, Categories, Orders, OrderItems.  
+> Relationships reflect real-world interactions:  
+> ```
+> User 1 ──── 1 UserProfile
+> User 1 ──── * Orders
+> Orders 1 ──── * OrderItem
+> Book 1 ──── * OrderItem
+> Category 1 ──── * Book
+> ```
 
 ---
 
-## JWT Authentication Flow -> 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/3518b924-2e17-4f60-91e4-29b0c2db1efb" />
+## JWT Authentication Flow
 
+![JWT Flow](https://github.com/user-attachments/assets/3518b924-2e17-4f60-91e4-29b0c2db1efb)
 
+> Flow Overview:
+> 1. User logs in with username and password  
+> 2. Server authenticates and issues a JWT token  
+> 3. Token sent with every API request in `Authorization` header  
+> 4. Server validates JWT and allows access based on user role  
+
+---
