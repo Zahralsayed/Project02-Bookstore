@@ -71,11 +71,11 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 | POST         | /auth/users/forgot-password        | Request password reset link              | Public  |
 | POST         | /auth/users/reset-password         | Reset password using token               | Public  |
 | POST         | /auth/users/change-password        | Change logged-in user password           | Private |
-| GET          | /auth/users/getAllUsers            | Get all users                             | Admin   |
-| PATCH        | /auth/users/status/{userId}       | Update user status                        | Admin   |
-| DELETE       | /auth/users/delete/{userId}       | Soft delete user (status = INACTIVE)     | Admin   |
 | POST         | /api/user-profiles/upload-image   | Upload profile image                      | Private |
 | GET          | /api/user-profiles/images/{filename} | Get profile image by filename          | Public  |
 | PUT          | /api/user-profiles/update-profile | Update full user profile                  | Private |
+| GET          | /auth/users/getAllUsers            | Get all users                             | Admin   |
+| PATCH        | /auth/users/status/{userId}       | Update user status                        | Admin   |
+| DELETE       | /auth/users/delete/{userId}       | Soft delete user (status = INACTIVE)     | Admin   |
 | GET          | /api/user-profiles/all-profiles   | Get all user profiles                      | Admin   |
 
