@@ -54,26 +54,28 @@ public class BookServiceImpl implements BookService {
         return book;
     }
 
-    @Override
-    public Book update(Long id, UpdateBookDTO dto) {
-        Book b = getById(id);
+@Override
+public Book update(Long id, UpdateBookDTO dto) {
+    Book b = getById(id);
 
-        if (dto.getName() != null) b.setName(dto.getName());
-        if (dto.getAuthor() != null) b.setAuthor(dto.getAuthor());
-        if (dto.getPrice() != null) b.setPrice(dto.getPrice());
-        if (dto.getQuantity() != null) b.setQuantity(dto.getQuantity());
-        if (dto.getIsbn() != null) b.setIsbn(dto.getIsbn());
-        if (dto.getCoverImage() != null) b.setCoverImage(dto.getCoverImage());
+    if (dto.getName() != null) b.setName(dto.getName());
+    if (dto.getAuthor() != null) b.setAuthor(dto.getAuthor());
+    if (dto.getPrice() != null) b.setPrice(dto.getPrice());
+    if (dto.getQuantity() != null) b.setQuantity(dto.getQuantity());
+    if (dto.getIsbn() != null) b.setIsbn(dto.getIsbn());
+    if (dto.getCoverImage() != null) b.setCoverImage(dto.getCoverImage());
+    if (dto.getStatus() != null) b.setStatus(dto.getStatus());
 
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Category not found with id: " + dto.getCategoryId()));
-            b.setCategory(category);
-        }
-
-        return bookRepository.save(b);
+    if (dto.getCategoryId() != null) {
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException(
+                        "Category not found with id: " + dto.getCategoryId()));
+        b.setCategory(category);
     }
+
+    return bookRepository.save(b);
+}
+
 
     @Override
     public void delete(Long id) {
