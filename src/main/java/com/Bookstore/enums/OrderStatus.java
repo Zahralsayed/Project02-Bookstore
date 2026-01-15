@@ -1,8 +1,9 @@
 package com.Bookstore.enums;
 
 public enum OrderStatus {
-    InProgress,
-    Confirmed,
-    Completed,
-    Cancelled
+    CREATED,
+    INPROGRESS,
+    CONFIRMED,
+    COMPLETED,
+    CANCELED
 }
