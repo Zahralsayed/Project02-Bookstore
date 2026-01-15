@@ -4,7 +4,9 @@ import com.Bookstore.dto.CreateBookDTO;
 import com.Bookstore.dto.UpdateBookDTO;
 import com.Bookstore.model.Book;
 import com.Bookstore.service.BookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,10 +19,11 @@ public class BookController {
     private final BookService bookService;
 
     @PostMapping
-    public Book create(@RequestBody CreateBookDTO dto) {
+    public Book create(@Valid @RequestBody CreateBookDTO dto) {
         return bookService.create(dto);
     }
 
+    // active only
     @GetMapping
     public List<Book> getAll() {
         return bookService.getAll();
@@ -31,14 +34,21 @@ public class BookController {
         return bookService.getById(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public Book update(@PathVariable Long id,
-                       @RequestBody UpdateBookDTO dto) {
+                       @Valid @RequestBody UpdateBookDTO dto) {
         return bookService.update(id, dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         bookService.delete(id);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public List<Book> getBooksByCategory(@PathVariable Long categoryId) {
+        return bookService.getBooksByCategory(categoryId);
     }
 }

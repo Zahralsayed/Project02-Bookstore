@@ -24,7 +24,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,5 +235,30 @@ public class UserService {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Password updated successfully."));
+    }
+
+    // Admin tasks //
+
+    // view all users
+    public List<User> getAll() {
+        return userRepository.findAll().stream()
+                .filter(user -> Role.CUSTOMER.equals(user.getRole()))
+                .toList();
+    }
+
+    // update user status
+    public void updateUserStatus(Long userId, UserStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InformationNotExistException("User with id " + userId + " not found!"));
+        user.setStatus(status);
+        userRepository.save(user);
+    }
+
+    // soft delete user
+    public void softDeleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InformationNotExistException("User with id " + userId + " not found!"));
+        user.setStatus(UserStatus.INACTIVE);
+        userRepository.save(user);
     }
 }
