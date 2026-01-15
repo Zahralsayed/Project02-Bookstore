@@ -25,29 +25,6 @@ public class OrderItemService {
         this.bookRepository = bookRepository;
     }
 
-    public OrderItem addItem(Long orderId, Long bookId, int quantity, User user) {
-        System.out.println("Calling Service addItem ==>");
-        Orders order = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order Not Found"));
-
-        if (!order.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized order access");
-        }
-
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book Not Found"));
-
-        OrderItem item = new OrderItem();
-        item.setOrder(order);
-        item.setBook(book);
-        item.setQuantity(quantity);
-        item.setUnitPrice(BigDecimal.valueOf(book.getPrice()));
-        item.setSubtotal(BigDecimal.valueOf(book.getPrice()).multiply(BigDecimal.valueOf(quantity)));
-
-    return orderItemRepository.save(item);
-    }
-
-
     public OrderItem updateQuantity(Long itemId,int quantity, User user) {
         System.out.println("Calling Service updateItem ==>");
         OrderItem item = orderItemRepository.findById(itemId)
@@ -55,7 +32,7 @@ public class OrderItemService {
 
 
         Orders order = item.getOrder();
-        if (!order.getId().equals(user.getId())) {
+        if (!order.getUser().getId().equals(user.getId())) {
         throw new RuntimeException("Unauthorized order access");
         }
 
@@ -83,7 +60,7 @@ public class OrderItemService {
 
         Orders order = item.getOrder();
 
-        if (!order.getId().equals(user.getId())) {
+        if (!order.getUser().getId().equals(user.getId())) {
         throw new RuntimeException("Unauthorized order access");
         }
 

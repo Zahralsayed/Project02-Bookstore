@@ -12,21 +12,11 @@ import org.springframework.web.bind.annotation.*;
 public class OrderItemController {
 
     private final OrderItemService orderItemService;
-    private OrdersService ordersService;
+    private final OrdersService ordersService;
 
-    public OrderItemController(OrderItemService orderItemService) {
+    public OrderItemController(OrderItemService orderItemService, OrdersService ordersService) {
         this.orderItemService = orderItemService;
-    }
-
-    @PostMapping
-    public OrderItem addItem(
-            @RequestParam Long orderId,
-            @RequestParam Long bookId,
-            @RequestParam int quantity
-    ) {
-        System.out.println("Calling addItem ==>");
-        User user = ordersService.getCurrentLoggedInUser();
-        return orderItemService.addItem(orderId, bookId, quantity, user);
+        this.ordersService = ordersService;
     }
 
     @PutMapping("/{id}")

@@ -1,5 +1,7 @@
 package com.Bookstore.service;
 
+import com.Bookstore.dto.OrderItemRequestDTO;
+import com.Bookstore.dto.OrderRequestDTO;
 import com.Bookstore.enums.OrderStatus;
 import com.Bookstore.exception.InformationExistException;
 import com.Bookstore.exception.InformationNotFoundException;
@@ -28,38 +30,44 @@ public class OrdersService {
     private UserRepository userRepository;
 
     @Autowired
-    public void setOrdersRepository(OrdersRepository ordersRepository) {
+    public void setOrdersRepository(OrdersRepository ordersRepository, BookRepository bookRepository) {
         this.ordersRepository = ordersRepository;
+        this.bookRepository = bookRepository;
     }
 
-    public Orders createOrder(Orders order, User user) {
+    public Orders createOrder(OrderRequestDTO orderRequest, User user) {
         System.out.println("Service Calling createOrder ==>");
 
-        if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
+        if (orderRequest.getOrderItems() == null || orderRequest.getOrderItems().isEmpty()) {
             throw new InformationExistException("Order must contain at least one item");
         }
 
+        Orders order = new Orders();
         order.setUser(user);
         order.setStatus(OrderStatus.CREATED);
 
         BigDecimal total = BigDecimal.ZERO;
 
-        for (OrderItem item : order.getOrderItems()) {
-            if (item.getBook() == null || item.getBook().getBookId() == null) {
+        for (OrderItemRequestDTO itemDTO : orderRequest.getOrderItems()) {
+            if (itemDTO.getBookId() == null) {
                 throw new InformationExistException("Book is required for each order item");
             }
+            if (itemDTO.getQuantity() == null || itemDTO.getQuantity() <= 0) {
+                throw new InformationExistException("Quantity must be greater than 0 for bookId: " + itemDTO.getBookId());
+            }
 
-            Long bookId = item.getBook().getBookId();
-            Book book = bookRepository.findById(bookId)
-                    .orElseThrow(() -> new InformationExistException("Book not found with id: " + bookId));
+            Book book = bookRepository.findById(itemDTO.getBookId())
+                    .orElseThrow(() -> new InformationExistException("Book not found with id: " + itemDTO.getBookId()));
+
+            OrderItem item = new OrderItem();
             item.setBook(book);
-
-            item.setOrder(order);
+            item.setQuantity(itemDTO.getQuantity());
             item.setUnitPrice(BigDecimal.valueOf(book.getPrice()));
-            BigDecimal subtotal = item.getUnitPrice()
-                    .multiply(BigDecimal.valueOf(item.getQuantity()));
-            item.setSubtotal(subtotal);
-            total = total.add(subtotal);
+            item.setSubtotal(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            item.setOrder(order);
+
+            order.getOrderItems().add(item);
+            total = total.add(item.getSubtotal());
         }
 
         order.setTotalPrice(total);
