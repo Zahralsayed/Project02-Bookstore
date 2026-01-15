@@ -7,7 +7,9 @@ import com.Bookstore.model.Book;
 import com.Bookstore.model.OrderItem;
 import com.Bookstore.model.Orders;
 import com.Bookstore.model.User;
+import com.Bookstore.repository.BookRepository;
 import com.Bookstore.repository.OrdersRepository;
+import com.Bookstore.repository.UserRepository;
 import com.Bookstore.security.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,10 @@ import java.util.List;
 public class OrdersService {
 
     private OrdersRepository ordersRepository;
+    private BookRepository bookRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     public void setOrdersRepository(OrdersRepository ordersRepository) {
@@ -27,6 +33,7 @@ public class OrdersService {
     }
 
     public Orders createOrder(Orders order, User user) {
+        System.out.println("Service Calling createOrder ==>");
 
         if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
             throw new InformationExistException("Order must contain at least one item");
@@ -35,10 +42,20 @@ public class OrdersService {
         order.setUser(user);
         order.setStatus(OrderStatus.CREATED);
 
-        BigDecimal total =BigDecimal.ZERO;
+        BigDecimal total = BigDecimal.ZERO;
 
-        for(OrderItem item : order.getOrderItems()) {
+        for (OrderItem item : order.getOrderItems()) {
+            if (item.getBook() == null || item.getBook().getBookId() == null) {
+                throw new InformationExistException("Book is required for each order item");
+            }
+
+            Long bookId = item.getBook().getBookId();
+            Book book = bookRepository.findById(bookId)
+                    .orElseThrow(() -> new InformationExistException("Book not found with id: " + bookId));
+            item.setBook(book);
+
             item.setOrder(order);
+            item.setUnitPrice(BigDecimal.valueOf(book.getPrice()));
             BigDecimal subtotal = item.getUnitPrice()
                     .multiply(BigDecimal.valueOf(item.getQuantity()));
             item.setSubtotal(subtotal);
@@ -51,15 +68,18 @@ public class OrdersService {
     }
 
     public List<Orders> findUserOrders(User user) {
+        System.out.println("Service Calling findUserOrders ==>");
         return ordersRepository.findByUserId(user.getId());
     }
 
     public Orders getOrderById(long id) {
+        System.out.println("Service Calling getOrderById==>");
         return ordersRepository.findById(id)
                 .orElseThrow(()-> new InformationNotFoundException("Order with id "+ id + " not found"));
     }
 
     public Orders updateOrderStatus(long id, OrderStatus status) {
+        System.out.println("Service Calling updateOrderStatus ==>");
         Orders order = getOrderById(id);
         if (order.getStatus() == OrderStatus.CANCELED){
             throw new IllegalStateException("This order was canceled, Canceled orders cannot be modified");
@@ -74,6 +94,7 @@ public class OrdersService {
     }
 
     public Orders cancelOrder(long id) {
+        System.out.println("Service Calling cancelOrder ==>");
         Orders order = getOrderById(id);
 
         if (order.getStatus()!= OrderStatus.CREATED){
@@ -90,9 +111,29 @@ public class OrdersService {
         return ordersRepository.save(order);
     }
 
-    public static User getCurrentLoggedInUser(){
-        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userDetails.getUser();
-    }
+//    public static User getCurrentLoggedInUser(){
+//        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        return userDetails.getUser();
+//    }
 
+    public User getCurrentLoggedInUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new RuntimeException("No user is currently logged in");
+        }
+
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof MyUserDetails myUserDetails) {
+            return myUserDetails.getUser();
+        } else if (principal instanceof String username) {
+            return userRepository.findByEmail(username)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        } else {
+            throw new RuntimeException("Unexpected principal type: " + principal.getClass().getName());
+
+        }
+
+    }
 }
