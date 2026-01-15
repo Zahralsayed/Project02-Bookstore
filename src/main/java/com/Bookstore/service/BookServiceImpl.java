@@ -96,5 +96,6 @@ public Book update(Long id, UpdateBookDTO dto) {
                 categoryId,
                 "ACTIVE"
         );
+
     }
 }
