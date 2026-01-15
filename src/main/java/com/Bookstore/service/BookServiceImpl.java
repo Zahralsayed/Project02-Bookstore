@@ -76,7 +76,6 @@ public Book update(Long id, UpdateBookDTO dto) {
     return bookRepository.save(b);
 }
 
-
     @Override
     public void delete(Long id) {
         Book b = getById(id);
