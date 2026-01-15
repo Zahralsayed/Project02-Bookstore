@@ -4,7 +4,9 @@ import com.Bookstore.dto.CreateCategoryDTO;
 import com.Bookstore.dto.UpdateCategoryDTO;
 import com.Bookstore.model.Category;
 import com.Bookstore.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +18,9 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public Category create(@RequestBody CreateCategoryDTO dto) {
+    public Category create(@Valid @RequestBody CreateCategoryDTO dto) {
         return categoryService.create(dto);
     }
 
@@ -31,12 +34,14 @@ public class CategoryController {
         return categoryService.getById(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public Category update(@PathVariable Long id,
-                           @RequestBody UpdateCategoryDTO dto) {
+                           @Valid @RequestBody UpdateCategoryDTO dto) {
         return categoryService.update(id, dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         categoryService.delete(id);
