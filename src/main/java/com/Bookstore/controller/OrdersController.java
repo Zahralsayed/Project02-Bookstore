@@ -59,6 +59,10 @@ public class OrdersController {
         return ordersService.updateOrderStatus(id, status);
     }
 
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        ordersService.deleteCancelledOrder(id);
+    }
 
 
 

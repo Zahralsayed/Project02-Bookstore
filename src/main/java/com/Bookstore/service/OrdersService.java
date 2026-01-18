@@ -92,8 +92,8 @@ public class OrdersService {
         System.out.println("Service Calling updateOrderStatus ==>");
         Orders order = getOrderById(id);
         User user = getCurrentLoggedInUser();
-        if (order.getStatus() == OrderStatus.CANCELED){
-            throw new IllegalStateException("This order was canceled, Canceled orders cannot be modified");
+        if (order.getStatus() == OrderStatus.CANCELLED){
+            throw new IllegalStateException("This order was cancelled, Cancelled orders cannot be modified");
         }
 
         if (!user.getRole().equals(Role.ADMIN)) {
@@ -121,10 +121,22 @@ public class OrdersService {
             book.setQuantity(book.getQuantity() + item.getQuantity());
         }
 
-        order.setStatus(OrderStatus.CANCELED);
+        order.setStatus(OrderStatus.CANCELLED);
 
         return ordersRepository.save(order);
     }
+
+    public void deleteCancelledOrder(long orderId) {
+        Orders order = getOrderById(orderId);
+
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Only cancelled orders can be deleted by admin");
+        }
+
+        ordersRepository.delete(order);
+        System.out.println("Admin deleted cancelled order with ID: " + orderId);
+    }
+
 
 //    public static User getCurrentLoggedInUser(){
 //        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
