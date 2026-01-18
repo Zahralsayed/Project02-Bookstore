@@ -82,7 +82,7 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 | GET          | /api/orders                       | Get all orders of the current user         | Private |
 | GET          | /api/orders/{id}                  | Get a specific order by ID                 | Private |
 | PUT          | /api/orders/{id}/status           | Update the status of a specific order      | Admin   |
-| PUT          | /api/orders/{id}/cancel           | Cancel a specific order                    | Private |
+| PUT          | /api/orders/{id}/cancel           | Soft delete order (status = Cancelled)     | Private |
 | DELETE       | /api/orders/{id}                  | Delete a cancelled order                   | Admin   | 
 | PUT          | /api/order-items/{id}             | Update Item Quantity of an OrderItem       | Priavte |
 | DELETE       | /api/order-items/{id}             | Delete an OrderItem                        | Priavte |
