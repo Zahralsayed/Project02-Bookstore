@@ -3,6 +3,7 @@ package com.Bookstore.service;
 import com.Bookstore.dto.OrderItemRequestDTO;
 import com.Bookstore.dto.OrderRequestDTO;
 import com.Bookstore.enums.OrderStatus;
+import com.Bookstore.enums.Role;
 import com.Bookstore.exception.InformationExistException;
 import com.Bookstore.exception.InformationNotFoundException;
 import com.Bookstore.model.Book;
@@ -18,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -89,8 +91,13 @@ public class OrdersService {
     public Orders updateOrderStatus(long id, OrderStatus status) {
         System.out.println("Service Calling updateOrderStatus ==>");
         Orders order = getOrderById(id);
-        if (order.getStatus() == OrderStatus.CANCELED){
-            throw new IllegalStateException("This order was canceled, Canceled orders cannot be modified");
+        User user = getCurrentLoggedInUser();
+        if (order.getStatus() == OrderStatus.CANCELLED){
+            throw new IllegalStateException("This order was cancelled, Cancelled orders cannot be modified");
+        }
+
+        if (!user.getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("Only admin can update order status");
         }
 
         if (order.getStatus() == status) {
@@ -114,10 +121,22 @@ public class OrdersService {
             book.setQuantity(book.getQuantity() + item.getQuantity());
         }
 
-        order.setStatus(OrderStatus.CANCELED);
+        order.setStatus(OrderStatus.CANCELLED);
 
         return ordersRepository.save(order);
     }
+
+    public void deleteCancelledOrder(long orderId) {
+        Orders order = getOrderById(orderId);
+
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Only cancelled orders can be deleted by admin");
+        }
+
+        ordersRepository.delete(order);
+        System.out.println("Admin deleted cancelled order with ID: " + orderId);
+    }
+
 
 //    public static User getCurrentLoggedInUser(){
 //        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

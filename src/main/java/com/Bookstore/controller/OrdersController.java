@@ -7,8 +7,10 @@ import com.Bookstore.model.User;
 import com.Bookstore.service.OrdersService;
 import com.Bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -48,14 +50,20 @@ public class OrdersController {
     }
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public Orders updateOrderStatus(
             @PathVariable long id,
             @RequestParam OrderStatus status
-    ) {
+    ){
         System.out.println("Calling updateOrderStatus ==>");
         return ordersService.updateOrderStatus(id, status);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        ordersService.deleteCancelledOrder(id);
+    }
 
 
 
