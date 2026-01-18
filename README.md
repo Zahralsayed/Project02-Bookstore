@@ -21,7 +21,7 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 - **Backend:** Java, Spring Boot, Spring Security, Hibernate/JPA  
 - **Database:** PostgreSQL  
 - **Authentication:** JWT (JSON Web Token)  
-- **Build Tools:** Maven / Gradle  
+- **Build Tools:** Maven
 - **Version Control:** Git, GitHub  
 - **Other Tools:** Postman, DBML (for ERD)
 
