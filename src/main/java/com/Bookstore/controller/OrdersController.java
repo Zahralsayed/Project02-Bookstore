@@ -59,6 +59,7 @@ public class OrdersController {
         return ordersService.updateOrderStatus(id, status);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         ordersService.deleteCancelledOrder(id);
