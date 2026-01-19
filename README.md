@@ -86,6 +86,14 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 | DELETE       | /api/orders/{id}                  | Delete a cancelled order                   | Admin   | 
 | PUT          | /api/order-items/{id}             | Update Item Quantity of an OrderItem       | Priavte |
 | DELETE       | /api/order-items/{id}             | Delete an OrderItem                        | Priavte |
+| POST   | /api/books                         | Create a new book                         | Private |
+| GET    | /api/books                         | Get all active books                      | Public  |
+| GET    | /api/books/{id}                    | Get a specific active book by ID          | Public  |
+| PUT    | /api/books/{id}                    | Update an existing book                  | Admin   |
+| DELETE | /api/books/{id}                    | Soft delete a book (status = INACTIVE)   | Admin   |
+| GET    | /api/books/category/{categoryId}   | Get all active books by category          | Public  |
+
+
 
 
 
