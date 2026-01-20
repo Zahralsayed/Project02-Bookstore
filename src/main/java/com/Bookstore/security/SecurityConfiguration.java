@@ -48,8 +48,6 @@ public class SecurityConfiguration {
                         .requestMatchers("/auth/users/getAllUsers").hasRole("ADMIN")
                         .requestMatchers("/auth/users/status/{userId}").hasRole("ADMIN")
                         .requestMatchers("/auth/users/delete/{userId}").hasRole("ADMIN")
-//                        .requestMatchers("/api/categories", "/api/categories/*").authenticated()
-//                        .requestMatchers("/api/books/**").authenticated()
                         .anyRequest().authenticated()
 
                 )
