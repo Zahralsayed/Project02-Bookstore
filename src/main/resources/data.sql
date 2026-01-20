@@ -15,13 +15,13 @@ INSERT INTO book (
     cover_image, status, created_at, updated_at, category_id
 ) VALUES
 (1, 'Clean Code', 'Robert C. Martin', 25.00, 10, '9780132350884',
- 'clean-code.jpg', 'ACTIVE', NOW(), NOW(), 2),
+ 'clean-code.jpg', 'AVAILABLE', NOW(), NOW(), 2),
 
 (2, 'Effective Java', 'Joshua Bloch', 30.00, 8, '9780134685991',
- 'effective-java.jpg', 'ACTIVE', NOW(), NOW(), 2),
+ 'effective-java.jpg', 'AVAILABLE', NOW(), NOW(), 2),
 
 (3, 'The Alchemist', 'Paulo Coelho', 15.00, 20, '9780061122415',
- 'alchemist.jpg', 'ACTIVE', NOW(), NOW(), 1);
+ 'alchemist.jpg', 'AVAILABLE', NOW(), NOW(), 1);
 
 -- =========================
 -- USERS

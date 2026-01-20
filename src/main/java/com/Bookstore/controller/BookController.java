@@ -23,7 +23,7 @@ public class BookController {
         return bookService.create(dto);
     }
 
-    // active only
+    // Available only
     @GetMapping
     public List<Book> getAll() {
         return bookService.getAll();
