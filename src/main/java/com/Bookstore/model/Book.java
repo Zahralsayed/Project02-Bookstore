@@ -27,6 +27,9 @@ public class Book {
     @NotBlank(message = "Author is required")
     private String author;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @NotNull(message = "Price is required")
     @PositiveOrZero(message = "Price must be zero or positive")
     private Double price;
@@ -42,7 +45,7 @@ public class Book {
     private String coverImage;
 
     @Column(nullable = false)
-    private String status = "ACTIVE";   //  for soft delete
+    private String status;
 
 
     @Column(name = "created_at", updatable = false)
