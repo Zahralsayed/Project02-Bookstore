@@ -21,7 +21,7 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 - **Backend:** Java, Spring Boot, Spring Security, Hibernate/JPA  
 - **Database:** PostgreSQL  
 - **Authentication:** JWT (JSON Web Token)  
-- **Build Tools:** Maven / Gradle  
+- **Build Tools:** Maven
 - **Version Control:** Git, GitHub  
 - **Other Tools:** Postman, DBML (for ERD)
 
@@ -78,4 +78,27 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 | PATCH        | /auth/users/status/{userId}       | Update user status                        | Admin   |
 | DELETE       | /auth/users/delete/{userId}       | Soft delete user (status = INACTIVE)     | Admin   |
 | GET          | /api/user-profiles/all-profiles   | Get all user profiles                      | Admin   |
+| POST         | /api/orders/new                   | Create a new order for the current user    | Private |
+| GET          | /api/orders                       | Get all orders of the current user         | Private |
+| GET          | /api/orders/{id}                  | Get a specific order by ID                 | Private |
+| PUT          | /api/orders/{id}/status           | Update the status of a specific order      | Admin   |
+| PUT          | /api/orders/{id}/cancel           | Soft delete order (status = Cancelled)     | Private |
+| DELETE       | /api/orders/{id}                  | Delete a cancelled order                   | Admin   | 
+| PUT          | /api/order-items/{id}             | Update Item Quantity of an OrderItem       | Priavte |
+| DELETE       | /api/order-items/{id}             | Delete an OrderItem                        | Priavte |
+| POST   | /api/books                         | Create a new book                         | Private |
+| GET    | /api/books                         | Get all active books                      | Public  |
+| GET    | /api/books/{id}                    | Get a specific active book by ID          | Public  |
+| PUT    | /api/books/{id}                    | Update an existing book                  | Admin   |
+| DELETE | /api/books/{id}                    | Soft delete a book (status = INACTIVE)   | Admin   |
+| GET    | /api/books/category/{categoryId}   | Get all active books by category          | Public  |
+| POST   | /api/categories        | Create a new category                    | Admin  |
+| GET    | /api/categories        | Get all active categories                | Public |
+| GET    | /api/categories/{id}   | Get a specific active category by ID     | Public |
+| PUT    | /api/categories/{id}   | Update an existing category              | Admin  |
+| DELETE | /api/categories/{id}   | Soft delete a category (status = INACTIVE) | Admin  |
+
+
+
+
 
