@@ -43,6 +43,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<Book> getAllForAdmin() {
+        return bookRepository.findAll();
+    }
+
+    @Override
     public Book getById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(
