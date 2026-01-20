@@ -38,14 +38,18 @@ public class SecurityConfiguration {
                                 "/auth/users/login",
                                 "/auth/users/verify",
                                 "/auth/users/forgot-password",
-                                "/auth/users/reset-password"
+                                "/auth/users/reset-password",
+                                "/api/categories",
+                                "/api/books",
+                                "/api/categories/{id}",
+                                "/api/books/{id}"
                         ).permitAll()
                         .requestMatchers("/api/user-profiles/all-profiles").hasRole("ADMIN")
                         .requestMatchers("/auth/users/getAllUsers").hasRole("ADMIN")
                         .requestMatchers("/auth/users/status/{userId}").hasRole("ADMIN")
                         .requestMatchers("/auth/users/delete/{userId}").hasRole("ADMIN")
-                        .requestMatchers("/api/categories", "/api/categories/*").authenticated()
-                        .requestMatchers("/api/books/**").authenticated()
+//                        .requestMatchers("/api/categories", "/api/categories/*").authenticated()
+//                        .requestMatchers("/api/books/**").authenticated()
                         .anyRequest().authenticated()
 
                 )
