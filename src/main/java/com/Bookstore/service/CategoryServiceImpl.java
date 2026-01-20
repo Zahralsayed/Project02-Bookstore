@@ -2,6 +2,7 @@ package com.Bookstore.service;
 
 import com.Bookstore.dto.CreateCategoryDTO;
 import com.Bookstore.dto.UpdateCategoryDTO;
+import com.Bookstore.model.Book;
 import com.Bookstore.model.Category;
 import com.Bookstore.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,11 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findByStatus("ACTIVE");
     }
 
+    @Override
+    public List<Category> getAllForAdmin() {
+        return categoryRepository.findAll();
+    }
+
     //  GET BY ID (BLOCK INACTIVE)
     public Category getById(Long id) {
         Category category = categoryRepository.findById(id)
@@ -37,8 +43,17 @@ public class CategoryServiceImpl implements CategoryService {
         return category;
     }
 
+
+
+    @Override
+    public Category getByIdForAdmin(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "Category not found with id: " + id));
+    }
+
     public Category update(Long id, UpdateCategoryDTO dto) {
-        Category c = getById(id);
+        Category c = getByIdForAdmin(id);
 
         if (dto.getName() != null) c.setName(dto.getName());
         if (dto.getDescription() != null) c.setDescription(dto.getDescription());

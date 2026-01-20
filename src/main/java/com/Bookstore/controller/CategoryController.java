@@ -2,6 +2,7 @@ package com.Bookstore.controller;
 
 import com.Bookstore.dto.CreateCategoryDTO;
 import com.Bookstore.dto.UpdateCategoryDTO;
+import com.Bookstore.model.Book;
 import com.Bookstore.model.Category;
 import com.Bookstore.service.CategoryService;
 import jakarta.validation.Valid;
@@ -27,6 +28,13 @@ public class CategoryController {
     @GetMapping
     public List<Category> getAll() {
         return categoryService.getAll();
+    }
+
+    //get All for Admin
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
+    public List<Category> getAllForAdmin() {
+        return categoryService.getAllForAdmin();
     }
 
     @GetMapping("/{id}")

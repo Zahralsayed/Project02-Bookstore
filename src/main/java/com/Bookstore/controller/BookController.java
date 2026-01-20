@@ -39,6 +39,13 @@ public class BookController {
         return bookService.getAll();
     }
 
+    //get All for Admin
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
+    public List<Book> getAllForAdmin() {
+        return bookService.getAllForAdmin();
+    }
+
     @GetMapping("/{id}")
     public Book getById(@PathVariable Long id) {
         return bookService.getById(id);
