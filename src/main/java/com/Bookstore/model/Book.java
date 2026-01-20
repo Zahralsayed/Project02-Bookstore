@@ -42,7 +42,7 @@ public class Book {
     private String coverImage;
 
     @Column(nullable = false)
-    private String status = "ACTIVE";   //  for soft delete
+    private String status;
 
 
     @Column(name = "created_at", updatable = false)
