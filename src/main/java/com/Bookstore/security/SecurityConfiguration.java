@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 @EnableWebSecurity
@@ -49,6 +50,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/auth/users/getAllUsers").hasRole("ADMIN")
                         .requestMatchers("/auth/users/status/{userId}").hasRole("ADMIN")
                         .requestMatchers("/auth/users/delete/{userId}").hasRole("ADMIN")
+                        .requestMatchers("/api/books/autofill/{isbn}").hasRole("ADMIN")
                         .anyRequest().authenticated()
 
                 )
@@ -65,5 +67,9 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    @Bean
+    public RestClient restClient() {
+        return RestClient.create();
     }
 }

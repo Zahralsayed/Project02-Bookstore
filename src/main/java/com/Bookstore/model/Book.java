@@ -27,6 +27,9 @@ public class Book {
     @NotBlank(message = "Author is required")
     private String author;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @NotNull(message = "Price is required")
     @PositiveOrZero(message = "Price must be zero or positive")
     private Double price;
