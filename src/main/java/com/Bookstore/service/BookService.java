@@ -8,8 +8,13 @@ import java.util.List;
 
 public interface BookService {
     Book create(CreateBookDTO dto);
+    // Public -  Available only
     List<Book> getAll();
     Book getById(Long id);
+
+    // Admin - all books
+    Book getByIdForAdmin(Long id);
+
     Book update(Long id, UpdateBookDTO dto);
     void delete(Long id);
     List<Book> getBooksByCategory(Long categoryId);
