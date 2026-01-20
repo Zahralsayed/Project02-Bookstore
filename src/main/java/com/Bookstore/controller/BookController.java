@@ -1,11 +1,14 @@
 package com.Bookstore.controller;
 
+import com.Bookstore.dto.BookAutofillDto;
 import com.Bookstore.dto.CreateBookDTO;
 import com.Bookstore.dto.UpdateBookDTO;
 import com.Bookstore.model.Book;
 import com.Bookstore.service.BookService;
+import com.Bookstore.service.ExternalBookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +20,20 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
+    private final ExternalBookService externalBookService;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/autofill/{isbn}")
+    public ResponseEntity<BookAutofillDto> getAutofillData(@PathVariable String isbn) {
+        return ResponseEntity.ok(externalBookService.fetchBookByIsbn(isbn));
+    }
 
     @PostMapping
     public Book create(@Valid @RequestBody CreateBookDTO dto) {
         return bookService.create(dto);
     }
 
-    // Available only
+//  the available only
     @GetMapping
     public List<Book> getAll() {
         return bookService.getAll();
