@@ -43,7 +43,8 @@ public class SecurityConfiguration {
                                 "/api/categories",
                                 "/api/books",
                                 "/api/categories/{id}",
-                                "/api/books/{id}"
+                                "/api/books/{id}",
+                                "/api/books/category/{categoryId}"
                         ).permitAll()
                         .requestMatchers("/api/user-profiles/all-profiles").hasRole("ADMIN")
                         .requestMatchers("/auth/users/getAllUsers").hasRole("ADMIN")

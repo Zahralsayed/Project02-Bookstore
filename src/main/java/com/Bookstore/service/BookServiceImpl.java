@@ -31,7 +31,7 @@ public class BookServiceImpl implements BookService {
         b.setQuantity(dto.getQuantity());
         b.setIsbn(dto.getIsbn());
         b.setCoverImage(dto.getCoverImage());
-        b.setStatus("ACTIVE"); //
+        b.setStatus("AVAILABLE"); //
         b.setCategory(category);
 
         return bookRepository.save(b);
@@ -39,7 +39,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<Book> getAll() {
-        return bookRepository.findByStatus("ACTIVE");
+        return bookRepository.findByStatus("AVAILABLE");
     }
 
     @Override
@@ -48,7 +48,7 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new RuntimeException(
                         "Book not found with id: " + id));
 
-        if (!"ACTIVE".equals(book.getStatus())) {
+        if (!"AVAILABLE".equals(book.getStatus())) {
             throw new RuntimeException("Book not found with id: " + id);
         }
         return book;
@@ -79,7 +79,7 @@ public Book update(Long id, UpdateBookDTO dto) {
     @Override
     public void delete(Long id) {
         Book b = getById(id);
-        b.setStatus("INACTIVE");
+        b.setStatus("UNAVAILABLE");
         bookRepository.save(b);
     }
 
@@ -93,7 +93,7 @@ public Book update(Long id, UpdateBookDTO dto) {
 
         return bookRepository.findByCategoryCategoryIdAndStatus(
                 categoryId,
-                "ACTIVE"
+                "AVAILABLE"
         );
 
     }
