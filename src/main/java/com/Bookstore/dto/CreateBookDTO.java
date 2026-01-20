@@ -6,8 +6,8 @@ import lombok.Data;
 public class CreateBookDTO {
     private String name;
     private String author;
-    private double price;
-    private int quantity;
+    private Double price;
+    private Integer quantity;
     private String isbn;
     private String coverImage;
     private String status;
