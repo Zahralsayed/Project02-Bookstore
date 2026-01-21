@@ -72,7 +72,7 @@ public class OrdersController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable Long id) {
         ordersService.deleteCancelledOrder(id);
     }
