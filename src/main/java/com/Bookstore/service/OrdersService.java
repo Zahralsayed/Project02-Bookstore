@@ -66,6 +66,14 @@ public class OrdersService {
             Book book = bookRepository.findById(itemDTO.getBookId())
                     .orElseThrow(() -> new InformationExistException("Book not found with id: " + itemDTO.getBookId()));
 
+            if (!"AVAILABLE".equalsIgnoreCase(book.getStatus())) {
+                throw new IllegalStateException("Book '" + book.getName() + "' is not available");
+            }
+
+            if (book.getCategory() == null || !"ACTIVE".equalsIgnoreCase(book.getCategory().getStatus())) {
+                throw new IllegalStateException("Book '" + book.getName() + "' belongs to an inactive category");
+            }
+
             if (book.getQuantity() < itemDTO.getQuantity()) {
                 throw new IllegalStateException("Not enough stock for book: " + book.getName());
             }
