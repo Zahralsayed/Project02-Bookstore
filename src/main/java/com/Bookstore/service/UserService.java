@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -261,4 +262,18 @@ public class UserService {
         user.setStatus(UserStatus.INACTIVE);
         userRepository.save(user);
     }
+
+    public User getCurrentUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new RuntimeException("No user is currently logged in");
+        }
+
+        if (auth.getPrincipal() instanceof MyUserDetails myUserDetails) {
+            return myUserDetails.getUser();
+        }
+
+        throw new RuntimeException("Invalid authentication principal");
+    }
+
 }
