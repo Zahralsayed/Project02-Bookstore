@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class OrdersController {
     }
 
     @PostMapping("/new")
-    public Orders createOrder(@RequestBody OrderRequestDTO orderRequest) {
+    public Orders createOrder(@RequestBody OrderRequestDTO orderRequest) throws IOException {
         System.out.println("Calling createOrder ==>");
         return ordersService.createOrder(orderRequest);
     }

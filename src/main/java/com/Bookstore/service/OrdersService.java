@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
@@ -29,19 +30,23 @@ public class OrdersService {
     private OrdersRepository ordersRepository;
     private BookRepository bookRepository;
     private UserService userService;
+    private OrderPdfService orderPdfService;
+    private EmailService emailService;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    public void setOrdersRepository(OrdersRepository ordersRepository, BookRepository bookRepository, UserService userService) {
+    public void setOrdersRepository(OrdersRepository ordersRepository, BookRepository bookRepository, UserService userService,  OrderPdfService orderPdfService,  EmailService emailService) {
         this.ordersRepository = ordersRepository;
         this.bookRepository = bookRepository;
         this.userService= userService;
+        this.orderPdfService = orderPdfService;
+        this.emailService = emailService;
     }
 
     @Transactional
-    public Orders createOrder(OrderRequestDTO orderRequest) {
+    public Orders createOrder(OrderRequestDTO orderRequest) throws IOException {
         System.out.println("Service Calling createOrder ==>");
 
         User user = userService.getCurrentUser();
@@ -94,7 +99,16 @@ public class OrdersService {
 
         order.setTotalPrice(total);
 
-        return ordersRepository.save(order);
+        Orders savedOrder = ordersRepository.save(order);
+        byte[] pdf = orderPdfService.generateOrderPdf(savedOrder);
+
+        emailService.sendOrderInvoice(
+                savedOrder.getUser().getEmail(),
+                pdf,
+                savedOrder.getId()
+        );
+
+        return savedOrder;
     }
 
     public List<Orders> getAllOrders() {
