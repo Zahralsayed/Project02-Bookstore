@@ -44,6 +44,14 @@ public class OrderItemService {
             throw new RuntimeException("Quantity must be at least 1");
         }
 
+        Book book = item.getBook();
+        int diff = quantity - item.getQuantity();
+        if (diff > 0 && book.getQuantity() < diff) {
+            throw new RuntimeException("Not enough stock for book: " + book.getName());
+        }
+        book.setQuantity(book.getQuantity() - diff);
+        bookRepository.save(book);
+
     item.setQuantity(quantity);
     item.setSubtotal(
             item.getUnitPrice().multiply(BigDecimal.valueOf(quantity))
@@ -67,6 +75,10 @@ public class OrderItemService {
         if (order.getStatus()!= OrderStatus.CREATED){
             throw new IllegalStateException("Too Late! Order is not deleted in status: " + order.getStatus());
         }
+
+        Book book = item.getBook();
+        book.setQuantity(book.getQuantity() + item.getQuantity());
+        bookRepository.save(book);
 
         orderItemRepository.delete(item);
     }

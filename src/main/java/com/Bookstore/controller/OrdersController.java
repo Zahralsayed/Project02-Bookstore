@@ -26,21 +26,33 @@ public class OrdersController {
     @PostMapping("/new")
     public Orders createOrder(@RequestBody OrderRequestDTO orderRequest) {
         System.out.println("Calling createOrder ==>");
-        User currentUser = ordersService.getCurrentLoggedInUser();
-        return ordersService.createOrder(orderRequest, currentUser);
+        return ordersService.createOrder(orderRequest);
     }
 
     @GetMapping
     public List<Orders> getMyOrders() {
         System.out.println("Calling getMyOrders ==>");
-        User currentUser = ordersService.getCurrentLoggedInUser();
-        return ordersService.findUserOrders(currentUser);
+        return ordersService.findUserOrders();
     }
 
     @GetMapping("/{id}")
     public Orders getOrderById(@PathVariable long id) {
         System.out.println("Calling getOrderById ==>");
-        return ordersService.getOrderById(id);
+        return ordersService.getOrderByIdForCurrentUser(id);
+    }
+
+    @GetMapping("/admin/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Orders getOrderByIdAdmin(@PathVariable long id) {
+        System.out.println("Calling getOrderByIdAdmin ==>");
+        return ordersService.getOrderByIdAdmin(id);
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Orders> getAllOrders() {
+        System.out.println("Calling getAllOrders ==>");
+        return ordersService.getAllOrders();
     }
 
     @PutMapping("/{id}/cancel")
@@ -60,7 +72,7 @@ public class OrdersController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable Long id) {
         ordersService.deleteCancelledOrder(id);
     }

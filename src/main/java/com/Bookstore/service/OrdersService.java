@@ -14,6 +14,7 @@ import com.Bookstore.repository.BookRepository;
 import com.Bookstore.repository.OrdersRepository;
 import com.Bookstore.repository.UserRepository;
 import com.Bookstore.security.MyUserDetails;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,19 +28,23 @@ public class OrdersService {
 
     private OrdersRepository ordersRepository;
     private BookRepository bookRepository;
+    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    public void setOrdersRepository(OrdersRepository ordersRepository, BookRepository bookRepository) {
+    public void setOrdersRepository(OrdersRepository ordersRepository, BookRepository bookRepository, UserService userService) {
         this.ordersRepository = ordersRepository;
         this.bookRepository = bookRepository;
+        this.userService= userService;
     }
 
-    public Orders createOrder(OrderRequestDTO orderRequest, User user) {
+    @Transactional
+    public Orders createOrder(OrderRequestDTO orderRequest) {
         System.out.println("Service Calling createOrder ==>");
 
+        User user = userService.getCurrentUser();
         if (orderRequest.getOrderItems() == null || orderRequest.getOrderItems().isEmpty()) {
             throw new InformationExistException("Order must contain at least one item");
         }
@@ -61,6 +66,21 @@ public class OrdersService {
             Book book = bookRepository.findById(itemDTO.getBookId())
                     .orElseThrow(() -> new InformationExistException("Book not found with id: " + itemDTO.getBookId()));
 
+            if (!"AVAILABLE".equalsIgnoreCase(book.getStatus())) {
+                throw new IllegalStateException("Book '" + book.getName() + "' is not available");
+            }
+
+            if (book.getCategory() == null || !"ACTIVE".equalsIgnoreCase(book.getCategory().getStatus())) {
+                throw new IllegalStateException("Book '" + book.getName() + "' belongs to an inactive category");
+            }
+
+            if (book.getQuantity() < itemDTO.getQuantity()) {
+                throw new IllegalStateException("Not enough stock for book: " + book.getName());
+            }
+
+            book.setQuantity(book.getQuantity() - itemDTO.getQuantity());
+            bookRepository.save(book);
+
             OrderItem item = new OrderItem();
             item.setBook(book);
             item.setQuantity(itemDTO.getQuantity());
@@ -77,27 +97,40 @@ public class OrdersService {
         return ordersRepository.save(order);
     }
 
-    public List<Orders> findUserOrders(User user) {
+    public List<Orders> getAllOrders() {
+        return ordersRepository.findAll();
+    }
+
+    public List<Orders> findUserOrders() {
         System.out.println("Service Calling findUserOrders ==>");
+        User user = userService.getCurrentUser();
         return ordersRepository.findByUserId(user.getId());
     }
 
-    public Orders getOrderById(long id) {
-        System.out.println("Service Calling getOrderById==>");
+    public Orders getOrderByIdAdmin(long id) {
+        System.out.println("Service Calling getOrderByIdAdmin==>");
         return ordersRepository.findById(id)
                 .orElseThrow(()-> new InformationNotFoundException("Order with id "+ id + " not found"));
     }
 
-    public Orders updateOrderStatus(long id, OrderStatus status) {
-        System.out.println("Service Calling updateOrderStatus ==>");
-        Orders order = getOrderById(id);
-        User user = getCurrentLoggedInUser();
-        if (order.getStatus() == OrderStatus.CANCELLED){
-            throw new IllegalStateException("This order was cancelled, Cancelled orders cannot be modified");
+    public Orders getOrderByIdForCurrentUser(long id) {
+        Orders order = ordersRepository.findById(id)
+                .orElseThrow(() -> new InformationNotFoundException("Order not found with id: " + id));
+
+        if (!order.getUser().getId().equals(userService.getCurrentUser().getId())) {
+            throw new RuntimeException("You cannot access this order");
         }
 
-        if (!user.getRole().equals(Role.ADMIN)) {
-            throw new RuntimeException("Only admin can update order status");
+        return order;
+    }
+
+
+    public Orders updateOrderStatus(long id, OrderStatus status) {
+        System.out.println("Service Calling updateOrderStatus ==>");
+        Orders order = getOrderByIdAdmin(id);
+
+        if (order.getStatus() == OrderStatus.CANCELLED){
+            throw new IllegalStateException("This order was cancelled, Cancelled orders cannot be modified");
         }
 
         if (order.getStatus() == status) {
@@ -108,9 +141,10 @@ public class OrdersService {
         return ordersRepository.save(order);
     }
 
+    @Transactional
     public Orders cancelOrder(long id) {
         System.out.println("Service Calling cancelOrder ==>");
-        Orders order = getOrderById(id);
+        Orders order = getOrderByIdForCurrentUser(id);
 
         if (order.getStatus()!= OrderStatus.CREATED){
             throw new IllegalStateException("Sorry! Too Late TO delete this order");
@@ -119,6 +153,7 @@ public class OrdersService {
         for (OrderItem item : order.getOrderItems()) {
             Book book = item.getBook();
             book.setQuantity(book.getQuantity() + item.getQuantity());
+            bookRepository.save(book);
         }
 
         order.setStatus(OrderStatus.CANCELLED);
@@ -127,7 +162,7 @@ public class OrdersService {
     }
 
     public void deleteCancelledOrder(long orderId) {
-        Orders order = getOrderById(orderId);
+        Orders order = getOrderByIdAdmin(orderId);
 
         if (order.getStatus() != OrderStatus.CANCELLED) {
             throw new IllegalStateException("Only cancelled orders can be deleted by admin");
@@ -137,30 +172,4 @@ public class OrdersService {
         System.out.println("Admin deleted cancelled order with ID: " + orderId);
     }
 
-
-//    public static User getCurrentLoggedInUser(){
-//        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        return userDetails.getUser();
-//    }
-
-    public User getCurrentLoggedInUser() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new RuntimeException("No user is currently logged in");
-        }
-
-        Object principal = auth.getPrincipal();
-
-        if (principal instanceof MyUserDetails myUserDetails) {
-            return myUserDetails.getUser();
-        } else if (principal instanceof String username) {
-            return userRepository.findByEmail(username)
-                    .orElseThrow(() -> new RuntimeException("User not found: " + username));
-        } else {
-            throw new RuntimeException("Unexpected principal type: " + principal.getClass().getName());
-
-        }
-
-    }
 }
