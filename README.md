@@ -61,6 +61,9 @@ This Bookstore App is designed to simulate a real-world online bookstore. Key fe
 
 ---
 
+## postman collection link
+https://sei118.postman.co/workspace/JDB-PT-01~92695595-102e-4296-bdfe-b30b468435f9/collection/38446764-571deda5-a6f8-4f12-ba44-14859798b750?action=share&source=copy-link&creator=51420213
+
 ## REST API Endpoints
 
 | Request Type | URL                                  | Functionality                            | Access  |
